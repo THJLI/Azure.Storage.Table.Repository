@@ -49,7 +49,14 @@ namespace App
             var lst = _configRepository.GetAll();
 
             foreach (var item in lst)
-                Console.WriteLine(item.Name);
+                Console.WriteLine($"{item.Id}-{item.Name}-{item.ETag}");
+
+            entity.Name = "Teste Update";
+            _configRepository.Update(entity);
+
+            lst = _configRepository.GetAll();
+            foreach (var item in lst)
+                Console.WriteLine($"{item.Id}-{item.Name}-{item.ETag}");
 
             return Task.CompletedTask;
         }
