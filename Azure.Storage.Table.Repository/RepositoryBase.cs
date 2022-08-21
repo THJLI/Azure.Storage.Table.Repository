@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -20,59 +21,126 @@ namespace Azure.Storage.Table.Repository
             _table.CreateIfNotExists();
         }
 
-        public T GetById(string id)
+        public virtual T GetById(string id)
         {
-            var condition = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, id);
-            var query = new TableQuery<T>().Where(condition);
-            var lst = _table.ExecuteQuery(query);
-            return lst.FirstOrDefault();
-        }
-
-        public IEnumerable<T> GetAll()
-        {
-            return _table.CreateQuery<T>().ToList();
-        }
-
-        public IEnumerable<T> GetBy(Expression<Func<T, bool>> predicate)
-        {
-            var query = _table.CreateQuery<T>().Where(predicate);
-            return query.ToList();
-        }
-
-        public bool Insert(T entity)
-        {
-            TableOperation op = TableOperation.Insert(entity);
-            var result = _table.Execute(op);
-            return result.HttpStatusCode == 200;
-        }
-
-        public bool Update(T entity)
-        {
-            TableOperation op = TableOperation.Replace(entity);
-            var result = _table.Execute(op);
-            return result.HttpStatusCode == 200;
-        }
-
-        public bool DeleteById(string id)
-        {
-            var obj = GetById(id);
-            TableOperation op = TableOperation.Delete(obj);
-            var result = _table.Execute(op);
-            return result.HttpStatusCode == 200;
-        }
-
-        public bool DeleteBy(Expression<Func<T, bool>> predicate)
-        {
-            var lstObj = GetBy(predicate);
-            var result = new List<int>();
-
-            foreach (var obj in lstObj)
+            try
             {
-                TableOperation op = TableOperation.Delete(obj);
-                var res = _table.Execute(op);
-                result.Add(res.HttpStatusCode);
+                var condition = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, id);
+                var query = new TableQuery<T>().Where(condition);
+                var lst = _table.ExecuteQuery(query);
+                return lst.FirstOrDefault();
             }
-            return result.Any(e => e != 200);
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return null;
+            }
+        }
+
+        public virtual IEnumerable<T> GetAll()
+        {
+            try
+            {
+                return _table.CreateQuery<T>().ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return new List<T>();
+            }
+        }
+
+        public virtual IEnumerable<T> GetBy(Expression<Func<T, bool>> predicate)
+        {
+            try
+            {
+                var query = _table.CreateQuery<T>().Where(predicate);
+                return query.ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return new List<T>();
+            }
+        }
+
+        public virtual bool Insert(T entity)
+        {
+            try
+            {
+                TableOperation op = TableOperation.Insert(entity);
+                var result = _table.Execute(op);
+                return isValidResult(result.HttpStatusCode);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return false;
+            }
+        }
+
+        public virtual bool Update(T entity)
+        {
+            try
+            {
+                TableOperation op = TableOperation.Replace(entity);
+                var result = _table.Execute(op);
+                return isValidResult(result.HttpStatusCode);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return false;
+            }
+        }
+
+        public virtual bool DeleteById(string id)
+        {
+            try
+            {
+                var obj = GetById(id);
+                TableOperation op = TableOperation.Delete(obj);
+                var result = _table.Execute(op);
+                return isValidResult(result.HttpStatusCode);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return false;
+            }
+        }
+
+        public virtual bool DeleteBy(Expression<Func<T, bool>> predicate)
+        {
+            try
+            {
+                var lstObj = GetBy(predicate);
+                var result = new List<int>();
+
+                foreach (var obj in lstObj)
+                {
+                    TableOperation op = TableOperation.Delete(obj);
+                    var res = _table.Execute(op);
+                    result.Add(res.HttpStatusCode);
+                }
+                return result.Any(e => isValidResult(e));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return false;
+            }
+        }
+
+        private bool isValidResult(int statusCode)
+        {
+            if ((statusCode >= 300 && statusCode < 500 && statusCode != 408)
+                    || statusCode == 501 || statusCode == 505)
+            {
+                return false;
+            }
+
+            return true;
         }
 
     }

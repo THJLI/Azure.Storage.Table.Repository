@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>Azure.Storage.Table.Repository</PackageId>
-    <Version>1.0.0-2</Version>
     <Authors>THJLI</Authors>
     <PackageDescription>This package adds an Octocat!</PackageDescription>
     <RepositoryUrl>https://github.com/THJLI/Azure.Storage.Table.Repository</RepositoryUrl>
