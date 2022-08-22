@@ -22,7 +22,7 @@ jobs:
   - powershell: |
       $dateStr = (Get-Date).ToString('yyyyMMdd') 
       Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
-      dotnet pack Azure.Storage.Table.Repository/Azure.Storage.Table.Repository.csproj --configuration Release --version-suffix $dateStr
+      dotnet pack Azure.Storage.Table.Repository/Azure.Storage.Table.Repository.csproj -o $(Build.ArtifactStagingDirectory)/pack --configuration Release --version-suffix $dateStr
   # - task: DotNetCoreCLI@2
   #   inputs:
   #     command: 'restore'
@@ -35,7 +35,7 @@ jobs:
   #     versioningScheme: 'off'
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/pack/**/*.nupkg'
       ArtifactName: 'pack'
       publishLocation: 'Container'
 
