@@ -20,7 +20,7 @@ jobs:
     clean: outputs
   steps:
   - powershell: |
-      $dateStr = (Get-Date).ToString('yyyyMMdd') 
+      $dateStr = (Get-Date).ToString('yyMMdd') 
       Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
       dotnet pack Azure.Storage.Table.Repository/Azure.Storage.Table.Repository.csproj -o $(Build.ArtifactStagingDirectory)/pack --configuration Release --version-suffix $dateStr
   # - task: DotNetCoreCLI@2
