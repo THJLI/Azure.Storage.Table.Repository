@@ -20,19 +20,20 @@ jobs:
     clean: outputs
   steps:
   - powershell: |
-      Set-Variable -Name d -Value (Get-Date).ToString('yyyyMMdd')
-      Write-Host "##vso[task.setvariable variable=deployDate]d"
+      $dateStr = (Get-Date).ToString('yyyyMMdd') 
+      Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
+
+      dotnet pack **/Azure.Storage.Table.Repository.csproj --configuration Release --version-suffix $dateStr
   # - task: DotNetCoreCLI@2
   #   inputs:
   #     command: 'restore'
   #     projects: '**/Azure.Storage.Table.Repository.csproj'
   #     feedsToUse: 'select'
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'pack'
-      packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
-      versioningScheme: 'off'
-      buildProperties: '--version 1.0.0-$(deployDate)'
+  # - task: DotNetCoreCLI@2
+  #   inputs:
+  #     command: 'pack'
+  #     packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
+  #     versioningScheme: 'off'
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
