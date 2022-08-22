@@ -20,13 +20,13 @@ jobs:
     clean: outputs
   steps:
   - powershell: |
-      Write-Host "##vso[task.setvariable variable=deployDate](Get-Date).ToString('YYMMDD')"
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'restore'
-      projects: '**/Azure.Storage.Table.Repository.csproj'
-      feedsToUse: 'select'
-
+      Set-Variable -Name d -Value (Get-Date).ToString('yyyyMMdd')
+      Write-Host "##vso[task.setvariable variable=deployDate]d"
+  # - task: DotNetCoreCLI@2
+  #   inputs:
+  #     command: 'restore'
+  #     projects: '**/Azure.Storage.Table.Repository.csproj'
+  #     feedsToUse: 'select'
   - task: DotNetCoreCLI@2
     inputs:
       command: 'pack'
