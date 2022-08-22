@@ -35,7 +35,7 @@ jobs:
   #     versioningScheme: 'off'
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/pack/**/*.nupkg'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/pack/*.nupkg'
       ArtifactName: 'pack'
       publishLocation: 'Container'
 
