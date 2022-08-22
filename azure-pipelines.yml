@@ -21,8 +21,14 @@ jobs:
   steps:
   - task: DotNetCoreCLI@2
     inputs:
+      command: 'restore'
+      projects: '**/Azure.Storage.Table.Repository.csproj'
+      feedsToUse: 'select'
+
+  - task: DotNetCoreCLI@2
+    inputs:
       command: 'pack'
-      packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
+      packagesToPack: 'versioningScheme:'
       versioningScheme: 'off'
       buildProperties: '--version 1.0.0-$(deployDate)'
   - task: PublishBuildArtifacts@1
