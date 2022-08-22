@@ -28,7 +28,7 @@ jobs:
   - task: DotNetCoreCLI@2
     inputs:
       command: 'pack'
-      packagesToPack: 'versioningScheme:'
+      packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
       versioningScheme: 'off'
       buildProperties: '--version 1.0.0-$(deployDate)'
   - task: PublishBuildArtifacts@1
