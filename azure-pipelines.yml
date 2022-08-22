@@ -7,7 +7,7 @@ trigger:
 - main
 
 variables:
-  deployDate: $(Get-Date -Format "YYMMDD")
+  deployDate: ''
 
 pool:
   vmImage: windows-latest
@@ -19,6 +19,8 @@ jobs:
   workspace:
     clean: outputs
   steps:
+  - powershell: |
+      Write-Host "##vso[task.setvariable variable=deployDate](Get-Date).ToString('YYMMDD')"
   - task: DotNetCoreCLI@2
     inputs:
       command: 'restore'
