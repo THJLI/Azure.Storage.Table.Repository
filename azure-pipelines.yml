@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+variables:
+  deployDate: $(Get-Date -Format "YYMMDD")
+
+pool:
+  vmImage: windows-latest
+
+jobs:
+- job: Pack
+  displayName: Pack Project
+  continueOnError: false
+  workspace:
+    clean: outputs
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'pack'
+      packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
+      versioningScheme: 'off'
+      buildProperties: '--version 1.0.0-$(deployDate)'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+      ArtifactName: 'pack'
+      publishLocation: 'Container'
+
+- job: 'PushGit'
+  displayName: Push Git
+  dependsOn: Pack
+  continueOnError: false 
+  steps:
+  - task: DownloadBuildArtifacts@1
+    inputs:
+      buildType: 'current'
+      downloadType: 'specific'
+      itemPattern: '**/*.nupkg'
+      downloadPath: '$(System.ArtifactsDirectory)'
+  - script: |
+      dotnet nuget push "$(System.ArtifactsDirectory)/**/*.nupkg"  --source "$(Source)" --api-key $(ApiKey)
+    displayName: 'Push git Package'
