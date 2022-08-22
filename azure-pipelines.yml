@@ -12,7 +12,9 @@ pool:
 jobs:
 - job: Pack
   displayName: Pack Project
-  continueOnError: true
+  continueOnError: false
+  variables:
+    deployDate: $(Get-Date -Format "YYMMDD")
   workspace:
     clean: outputs
   steps:
@@ -20,7 +22,8 @@ jobs:
     inputs:
       command: 'pack'
       packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
-      versioningScheme: 'byBuildNumber'
+      versioningScheme: 'off'
+      buildProperties: '--version 1.0.0-$(deployDate)'
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
@@ -29,6 +32,8 @@ jobs:
 
 - job: 'PushGit'
   displayName: Push Git
+  dependsOn: Pack
+  continueOnError: false 
   steps:
   - task: DownloadBuildArtifacts@1
     inputs:
