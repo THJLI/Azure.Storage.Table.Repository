@@ -6,15 +6,16 @@
 trigger:
 - main
 
+variables:
+  deployDate: $(Get-Date -Format "YYMMDD")
+
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 jobs:
 - job: Pack
   displayName: Pack Project
   continueOnError: false
-  variables:
-    deployDate: $(Get-Date -Format "YYMMDD")
   workspace:
     clean: outputs
   steps:
