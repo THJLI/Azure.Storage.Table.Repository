@@ -68,6 +68,8 @@ namespace Azure.Storage.Table.Repository
         {
             try
             {
+                entity.SetNewId();
+
                 TableOperation op = TableOperation.Insert(entity);
                 var result = _table.Execute(op);
                 return isValidResult(result.HttpStatusCode);

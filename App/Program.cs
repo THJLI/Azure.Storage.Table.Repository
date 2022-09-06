@@ -44,7 +44,17 @@ namespace App
         {
             var entity = new ConfigEntity();
             entity.Name = "teste entity";
+            entity.Status = enuStatus.Enable;
+
             _configRepository.Insert(entity);
+
+            var conf = new ConfigEntity()
+            {
+                Id = "1234565"
+            };
+            conf.Name = "teste entity";
+            conf.Status = enuStatus.Enable;
+            _configRepository.Insert(conf);
 
             var lst = _configRepository.GetAll();
 
