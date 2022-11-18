@@ -10,8 +10,8 @@ namespace Azure.Storage.Table.Repository
     public abstract class RepositoryBase<T>
         where T : EntityBase, new()
     {
-        private readonly CloudTableClient _client;
-        private readonly CloudTable _table;
+        protected readonly CloudTableClient _client;
+        protected readonly CloudTable _table;
 
         protected RepositoryBase(RepositorySettings repositorySettings)
         {
