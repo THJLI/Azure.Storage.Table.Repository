@@ -3,34 +3,22 @@ trigger:
 
 variables:
   deployDate: ''
+  projectName: 'SeuNomeDeProjeto'  # Ajuste o nome do seu projeto aqui
 
 pool:
   vmImage: windows-latest
 
-jobs:
-- job: Pack
-  displayName: Pack Project
-  continueOnError: false
-  workspace:
-    clean: outputs
-  steps:
-  - powershell: |
-      $dateStr = (Get-Date).ToString('yyMMdd') 
-      Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
-      dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version-suffix $dateStr --no-dependencies
-    displayName: 'Pack Project'
+steps:
+- powershell: |
+    $dateStr = (Get-Date).ToString('yyMMdd') 
+    Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
+    dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version-suffix ".$dateStr" --no-dependencies
+  displayName: 'Pack Project'
     
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'pack'
-      publishLocation: 'Container'
-    displayName: 'Publish Artifacts'
-
-  - task: NuGetCommand@2
-    inputs:
-      command: 'push'
-      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-      nuGetFeedType: 'external'
-      publishFeedCredentials: 'NuGetOrgConnection'
-    displayName: 'Push to NuGet'
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NuGetOrgConnection'
+  displayName: 'Push to NuGet'
