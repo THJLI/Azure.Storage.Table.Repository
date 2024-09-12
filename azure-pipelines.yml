@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
@@ -23,20 +18,19 @@ jobs:
       $dateStr = (Get-Date).ToString('yyMMdd') 
       Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
       dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version-suffix $dateStr --no-dependencies
+    displayName: 'Pack Project'
+    
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'pack'
       publishLocation: 'Container'
+    displayName: 'Publish Artifacts'
 
-- job: 'PushNuget'
-  displayName: PushNuget
-  dependsOn: Pack
-  continueOnError: false 
-  steps:
   - task: NuGetCommand@2
     inputs:
       command: 'push'
-      packagesToPush: '$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.symbols.nupkg'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
       nuGetFeedType: 'external'
       publishFeedCredentials: 'NuGetOrgConnection'
+    displayName: 'Push to NuGet'
