@@ -14,22 +14,22 @@ steps:
     version: '8.0.x'
     includePreviewVersions: true
 
-# Build e pack do projeto
+# Build e pack do projeto com novo nome do pacote
 - task: DotNetCoreCLI@2
   displayName: "dotnet pack"
   inputs:
     command: 'pack'
     packagesToPack: '**/$(projectName).csproj'
-    packDirectory: '$(Build.ArtifactStagingDirectory)/$(projectName)'
+    packDirectory: '$(Build.ArtifactStagingDirectory)/$(packName)'
     includesymbols: true
     includesource: true
     versioningScheme: 'byBuildNumber'
-    buildProperties: 'IncludeReferencedProjects=false'
+    buildProperties: 'IncludeReferencedProjects=false;PackageId=$(newPackName)'
 
 - task: NuGetCommand@2
   displayName: 'Push package to NuGet.org'
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.symbols.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(packName)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/$(packName)/**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGetOrgConnection'
