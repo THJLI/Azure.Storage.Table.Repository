@@ -22,34 +22,21 @@ jobs:
   - powershell: |
       $dateStr = (Get-Date).ToString('yyMMdd') 
       Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
-      dotnet pack Azure.Storage.Table.Repository/Azure.Storage.Table.Repository.csproj -o $(Build.ArtifactStagingDirectory)/pack --configuration Release --version-suffix $dateStr
-  # - task: DotNetCoreCLI@2
-  #   inputs:
-  #     command: 'restore'
-  #     projects: '**/Azure.Storage.Table.Repository.csproj'
-  #     feedsToUse: 'select'
-  # - task: DotNetCoreCLI@2
-  #   inputs:
-  #     command: 'pack'
-  #     packagesToPack: '**/Azure.Storage.Table.Repository.csproj'
-  #     versioningScheme: 'off'
+      dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory)/pack --configuration Release --version-suffix $dateStr --no-dependencies
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'pack'
       publishLocation: 'Container'
 
-- job: 'PushGit'
+- job: 'PushNuget'
   displayName: Push Git
   dependsOn: Pack
   continueOnError: false 
   steps:
-  - task: DownloadBuildArtifacts@1
+  - task: NuGetCommand@2
     inputs:
-      buildType: 'current'
-      downloadType: 'specific'
-      itemPattern: '**/*.nupkg'
-      downloadPath: '$(System.ArtifactsDirectory)'
-  - script: |
-      dotnet nuget push "$(System.ArtifactsDirectory)/**/*.nupkg"  --source "$(Source)" --api-key $(ApiKey)
-    displayName: 'Push git Package'
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.symbols.nupkg'
+      nuGetFeedType: 'external'
+      publishFeedCredentials: 'NuGetOrgConnection'
