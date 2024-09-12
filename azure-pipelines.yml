@@ -1,17 +1,17 @@
 trigger:
 - main
 
-variables:
-  deployDate: ''
-
 pool:
   vmImage: windows-latest
 
 steps:
 - powershell: |
-    $dateStr = (Get-Date).ToString('yyMMdd') 
-    Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
-    dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version-suffix ".$dateStr" --no-dependencies
+    $year = (Get-Date).ToString('yy')
+    $month = (Get-Date).ToString('MM')
+    $day = (Get-Date).ToString('dd')
+    $version = "$year.$month.$day"
+    Write-Host "##vso[task.setvariable variable=deployDate;]$version"
+    dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version $version --no-dependencies
   displayName: 'Pack Project'
     
 - task: NuGetCommand@2
