@@ -1,23 +1,35 @@
 trigger:
 - main
 
+name: $(Date:yy.MM.d)
+
 pool:
   vmImage: windows-latest
 
 steps:
-- powershell: |
-    $year = (Get-Date).ToString('yy')
-    $month = (Get-Date).ToString('MM')
-    $day = (Get-Date).ToString('dd')
-    $version = "$year.$month.$day"
-    Write-Host "##vso[task.setvariable variable=deployDate;]$version"
-    dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version $version --no-dependencies
-  displayName: 'Pack Project'
-    
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'
+    includePreviewVersions: true
+
+# Build e pack do projeto
+- task: DotNetCoreCLI@2
+  displayName: "dotnet pack"
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/$(projectName).csproj'
+    packDirectory: '$(Build.ArtifactStagingDirectory)/$(projectName)'
+    includesymbols: true
+    includesource: true
+    versioningScheme: 'byBuildNumber'
+    buildProperties: 'IncludeReferencedProjects=false'
+
 - task: NuGetCommand@2
+  displayName: 'Push package to NuGet.org'
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/$(projectName)/**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NuGetOrgConnection'
-  displayName: 'Push to NuGet'
