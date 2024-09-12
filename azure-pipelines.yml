@@ -3,7 +3,6 @@ trigger:
 
 variables:
   deployDate: ''
-  projectName: 'SeuNomeDeProjeto'  # Ajuste o nome do seu projeto aqui
 
 pool:
   vmImage: windows-latest
