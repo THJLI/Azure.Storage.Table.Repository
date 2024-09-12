@@ -30,7 +30,7 @@ jobs:
       publishLocation: 'Container'
 
 - job: 'PushNuget'
-  displayName: Push Git
+  displayName: PushNuget
   dependsOn: Pack
   continueOnError: false 
   steps:
