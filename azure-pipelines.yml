@@ -22,7 +22,7 @@ jobs:
   - powershell: |
       $dateStr = (Get-Date).ToString('yyMMdd') 
       Write-Host "##vso[task.setvariable variable=deployDate;]$dateStr"
-      dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory)/pack --configuration Release --version-suffix $dateStr --no-dependencies
+      dotnet pack Azure.Storage.Table.Repository/$(projectName).csproj -o $(Build.ArtifactStagingDirectory) --configuration Release --version-suffix $dateStr --no-dependencies
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
